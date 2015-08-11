@@ -59,7 +59,7 @@ median_steps <- as.integer(median(tot_steps,na.rm=TRUE))
 Hence the mean is 10766, while the median is 10765. I made the mean an integer because the formatting was weird otherwise.
 
 ## What is the average daily activity pattern?
-1) Next we plot the average number of steps taken for each 5 minute interval over the observation period. This requires 
+1) For this part  we are intereested in plotting the average number of steps taken for each 5 minute interval over the observation period. This requires 
 getting the means for each of the 288 intervals:
 
 ```r
@@ -234,7 +234,7 @@ wtab <- data.frame(Intervals,Steps,wflag)
 Now plot Mean steps per interval for weekdays and weekends
 
 ```r
-qplot(Intervals,Steps,data=wtab,facets = wflag ~ .) 
+qplot(Intervals,Steps,data=wtab,facets = wflag ~ .) +geom_line()
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-20-1.png) 
