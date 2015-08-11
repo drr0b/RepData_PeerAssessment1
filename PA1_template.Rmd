@@ -94,7 +94,7 @@ All_steps <- activity_data$steps
 temp_table <- cbind(Steps,Date)
 repeated_mean <- temp_table[,1]
 new_table <- data.frame(All_dates,All_intervals, All_steps, repeated_mean)
-head(new_table)
+
 ```
 
 3) Alter new table so that NA values contain mean values for that interval. There are 17568 rows
@@ -104,7 +104,7 @@ for (n in 1:17568){
                       new_table[n,3] <- new_table[n,4]
                     } 
 }
-head(new_table)
+
 ```
 
 4) Make histogram for daily totals again, copying previous work

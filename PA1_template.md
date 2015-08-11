@@ -123,20 +123,6 @@ new_table <- data.frame(All_dates,All_intervals, All_steps, repeated_mean)
 ## row names were found from a short variable and have been discarded
 ```
 
-```r
-head(new_table)
-```
-
-```
-##    All_dates All_intervals All_steps repeated_mean
-## 1 2012-10-01             0        NA     1.7169811
-## 2 2012-10-01             5        NA     0.3396226
-## 3 2012-10-01            10        NA     0.1320755
-## 4 2012-10-01            15        NA     0.1509434
-## 5 2012-10-01            20        NA     0.0754717
-## 6 2012-10-01            25        NA     2.0943396
-```
-
 3) Alter new table so that NA values contain mean values for that interval. There are 17568 rows
 
 ```r
@@ -145,17 +131,6 @@ for (n in 1:17568){
                       new_table[n,3] <- new_table[n,4]
                     } 
 }
-head(new_table)
-```
-
-```
-##    All_dates All_intervals All_steps repeated_mean
-## 1 2012-10-01             0 1.7169811     1.7169811
-## 2 2012-10-01             5 0.3396226     0.3396226
-## 3 2012-10-01            10 0.1320755     0.1320755
-## 4 2012-10-01            15 0.1509434     0.1509434
-## 5 2012-10-01            20 0.0754717     0.0754717
-## 6 2012-10-01            25 2.0943396     2.0943396
 ```
 
 4) Make histogram for daily totals again, copying previous work
