@@ -1,23 +1,20 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 In this project, we report on our findings regarding the supplied activity data. 
 This data is available in the current Git
 
 ## Loading and preprocessing the data
 1) First we need to unzip and read in the data: 
-```{r loading}
+
+```r
 unzip("activity.zip")
 
 activity_data <- read.csv("activity.csv")
 ```
 
 2) Now we clean it up
-```{r}
+
+```r
 ad_flag <- complete.cases(activity_data)
 clean_data <- activity_data[ad_flag, ]
 ```
@@ -25,12 +22,18 @@ clean_data <- activity_data[ad_flag, ]
 ## What is mean total number of steps taken per day?
 
 In order to get to grips with the data, we first get the column names:
-```{r}
+
+```r
 colnames(clean_data)
 ```
 
+```
+## [1] "steps"    "date"     "interval"
+```
+
 We want the total number of steps taken each day, and can get it using the following code:
-```{r}
+
+```r
 tot_steps <- tapply(clean_data$steps,clean_data$date, sum)
 Date <- unique(activity_data$date)
 tot_table <- data.frame(Date,tot_steps)
@@ -39,66 +42,104 @@ tot_table <- data.frame(Date,tot_steps)
 
 1) Now we make can make a histogram of the number of steps taken per day ,  using ggplot2.  
 
-```{r}
+
+```r
 library(ggplot2)
 qplot(tot_steps,data =tot_table,binwidth = 1000) 
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+
 2) We can now get the mean and median number of steps using the following (excluding null data):
-```{r,result="hide"}
+
+```r
 mean_steps <- as.integer(mean(tot_steps,na.rm=TRUE))
 median_steps <- as.integer(median(tot_steps,na.rm=TRUE))
 ```
-Hence the mean is `r mean_steps`, while the median is `r median_steps`. I made the mean an integer because the formatting was weird otherwise.
+Hence the mean is 10766, while the median is 10765. I made the mean an integer because the formatting was weird otherwise.
 
 ## What is the average daily activity pattern?
 1) Next we plot the average number of steps taken for each 5 minute interval over the observation period. This requires 
 getting the means for each of the 288 intervals:
-```{r}
-Steps <- tapply(clean_data$steps, clean_data$interval,mean)
 
+```r
+Steps <- tapply(clean_data$steps, clean_data$interval,mean)
 ```
 Next we make a new table giving interval and mean number of steps:
-```{r}
+
+```r
 Interval <- activity_data[1:288,3]
 mean_data <- data.frame(Interval,Steps)
 ```
 
 Finally we can plot the data
-```{r}
+
+```r
 ggplot(mean_data, aes(Interval,Steps)) + geom_point(size=2,color="blue",alpha=0.1) + geom_line()
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
+
 2) We can find the interval where most steps were taken using
-```{r,results="hide"}
+
+```r
 max_interval <- mean_data[mean_data$Steps==max(Steps),1]
 ```
-and getting a value of `r max_interval`.
+and getting a value of 835.
 
 ## Imputing missing values
 
 1) We need to calculate the number of rows with no values (NAs). We can do this as follows
-```{r}
+
+```r
 bad_flag <- is.na(activity_data$steps)
 bad_data <- activity_data[bad_flag,]
 num_na <- length(bad_data$steps)
 ```
-Hence, there are `r num_na` records with NA.
+Hence, there are 2304 records with NA.
 
 2) We can replace any NA values with the mean value for that interval. To do that, we will make a new table
 which repeats the mean value for every day in the dataset
-```{r}
+
+```r
 All_dates <- activity_data$date
 All_intervals <- activity_data$interval
 All_steps <- activity_data$steps
 temp_table <- cbind(Steps,Date)
+```
+
+```
+## Warning in cbind(Steps, Date): number of rows of result is not a multiple
+## of vector length (arg 2)
+```
+
+```r
 repeated_mean <- temp_table[,1]
 new_table <- data.frame(All_dates,All_intervals, All_steps, repeated_mean)
+```
+
+```
+## Warning in data.frame(All_dates, All_intervals, All_steps, repeated_mean):
+## row names were found from a short variable and have been discarded
+```
+
+```r
 head(new_table)
 ```
 
+```
+##    All_dates All_intervals All_steps repeated_mean
+## 1 2012-10-01             0        NA     1.7169811
+## 2 2012-10-01             5        NA     0.3396226
+## 3 2012-10-01            10        NA     0.1320755
+## 4 2012-10-01            15        NA     0.1509434
+## 5 2012-10-01            20        NA     0.0754717
+## 6 2012-10-01            25        NA     2.0943396
+```
+
 3) Alter new table so that NA values contain mean values for that interval. There are 17568 rows
-```{r}
+
+```r
 for (n in 1:17568){
                     if (is.na(new_table[n,3])==TRUE){
                       new_table[n,3] <- new_table[n,4]
@@ -107,9 +148,20 @@ for (n in 1:17568){
 head(new_table)
 ```
 
+```
+##    All_dates All_intervals All_steps repeated_mean
+## 1 2012-10-01             0 1.7169811     1.7169811
+## 2 2012-10-01             5 0.3396226     0.3396226
+## 3 2012-10-01            10 0.1320755     0.1320755
+## 4 2012-10-01            15 0.1509434     0.1509434
+## 5 2012-10-01            20 0.0754717     0.0754717
+## 6 2012-10-01            25 2.0943396     2.0943396
+```
+
 4) Make histogram for daily totals again, copying previous work
 
-```{r}
+
+```r
 tot_steps_v2 <- tapply(new_table[,3],new_table[,1], sum)
 Date <- unique(activity_data$date)
 tot_table_v2 <- data.frame(Date,tot_steps_v2)
@@ -117,26 +169,31 @@ tot_table_v2 <- data.frame(Date,tot_steps_v2)
 
 
 
-```{r}
+
+```r
 library(ggplot2)
 qplot(tot_steps_v2,data =tot_table_v2,binwidth = 1000) 
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-14-1.png) 
+
 Now we estimate the mean and median again
 
 
-```{r,result="hide"}
+
+```r
 mean_steps_v2 <- as.integer(mean(tot_steps_v2))
 median_steps_v2 <- as.integer(median(tot_steps_v2))
 ```
-Hence the mean is `r mean_steps_v2`, while the median is `r median_steps_v2`. I made the mean and median integers because the formatting was weird otherwise. We can see very little difference, and this is unsuprising given that we replaced NAs with the mean value for that interval.
+Hence the mean is 10766, while the median is 10766. I made the mean and median integers because the formatting was weird otherwise. We can see very little difference, and this is unsuprising given that we replaced NAs with the mean value for that interval.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
 We need to get the weekday for each date, in order to split data into weekdays and weekends
 
-```{r}
+
+```r
 times <- strptime(All_dates, format = "%Y-%m-%d")
 week_days <- weekdays(times)
 for (n in 1: 17568) {if (week_days[n] == "Saturday") week_days[n]<- "Weekend"
@@ -146,7 +203,8 @@ for (n in 1: 17568) {if (week_days[n] == "Saturday") week_days[n]<- "Weekend"
 ```
 
 Now we make a new table just consiting of weekdays and NA-corrected steps, then divide into week and weekend
-```{r}
+
+```r
 week_table <- data.frame(week_days,new_table$All_intervals,new_table$All_steps)
 wd_table <- week_table[week_table$week_days=="Weekday",]
 we_table <- week_table[week_table$week_days =="Weekend",]
@@ -154,7 +212,8 @@ we_table <- week_table[week_table$week_days =="Weekend",]
 
 Now get means steps per interval, as before
 
-```{r}
+
+```r
 wd_steps <- tapply(wd_table[,3], wd_table[,2],mean)
 wd_int<- data.frame(Interval,wd_steps)
 
@@ -163,7 +222,8 @@ we_int<- data.frame(Interval,we_steps)
 ```
 
 Combine the data (there is probably an easier way!)
-```{r}
+
+```r
 comb_int<- rbind(as.matrix(wd_int),as.matrix(we_int))
 Intervals <- as.integer(comb_int[,1])
 Steps <- as.integer(comb_int[,2])
@@ -172,7 +232,10 @@ wtab <- data.frame(Intervals,Steps,wflag)
 ```
 
 Now plot Mean steps per interval for weekdays and weekends
-```{r}
+
+```r
 qplot(Intervals,Steps,data=wtab,facets = wflag ~ .) 
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-20-1.png) 
 
